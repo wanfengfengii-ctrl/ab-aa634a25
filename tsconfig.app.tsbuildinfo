@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/jsonio.ts","./src/main.tsx","./src/samples.ts","./src/solver.test.ts","./src/solver.ts","./src/solver.worker.ts","./src/types.ts","./src/components/PairMatrixEditor.tsx","./src/components/WitnessView.tsx"],"version":"5.9.3"}

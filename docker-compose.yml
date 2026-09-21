@@ -1,0 +1,25 @@
+services:
+  # 静态 Web 服务：宿主机端口可通过 WEB_PORT 环境变量配置（默认 8080）
+  web:
+    build: .
+    image: hydrophone-wiring-audit-web
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    restart: unless-stopped
+
+  # 一次性验收服务：等待 web 健康后在真实浏览器中跑验收，以退出码报告结果
+  verify:
+    build: ./verify
+    image: hydrophone-wiring-audit-verify
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://web:80
+    restart: "no"
