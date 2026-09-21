@@ -1,0 +1,14 @@
+# verify 一次性服务镜像：Node + Playwright Chromium，浏览器端验收
+FROM node:22-bookworm-slim
+WORKDIR /app
+
+# 先装 Playwright 包，再用其 CLI 安装 Chromium 系统依赖与浏览器本体
+RUN npm init -y \
+  && npm install playwright@1.49.1 --no-audit --no-fund \
+  && npx playwright install-deps chromium \
+  && npx playwright install chromium
+
+COPY scripts ./scripts
+
+# 验收对象由 BASE_URL 指定（compose 中为 http://web:80）
+CMD ["node", "scripts/acceptance.mjs"]

@@ -1,0 +1,30 @@
+services:
+  # 静态 Web：宿主机端口可通过 HOST_PORT（或 .env）配置，默认 8080
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hydrophone-review-web:latest
+    ports:
+      - "${HOST_PORT:-8080}:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  # 一次性浏览器验收服务：等待 web 健康后运行 Playwright，自行退出，退出码即验收结果
+  verify:
+    build:
+      context: .
+      dockerfile: Dockerfile.verify
+    image: hydrophone-review-verify:latest
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://web:80
+    restart: "no"
+    command: ["node", "scripts/acceptance.mjs"]
